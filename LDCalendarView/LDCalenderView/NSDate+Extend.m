@@ -5,7 +5,7 @@
 //  Copyright (c) 2015年 Wisorg. All rights reserved.
 //
 
-#import "NSDate+extend.h"
+#import "NSDate+Extend.h"
 
 @implementation NSDate (Extend)
 - (BOOL)isToday
