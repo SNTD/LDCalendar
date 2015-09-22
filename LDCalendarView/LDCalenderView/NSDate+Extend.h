@@ -1,5 +1,5 @@
 //
-//  NSDate+extend.h
+//  NSDate+Extend.h
 //
 //  Created by lidi on 15/7/28.
 //  Copyright (c) 2015年 Wisorg. All rights reserved.
@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSDate (extend)
+@interface NSDate (Extend)
 
 - (BOOL)isToday;
 
