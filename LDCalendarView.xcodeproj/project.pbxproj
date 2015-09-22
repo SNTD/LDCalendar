@@ -16,8 +16,8 @@
 		0293D0B41B95A24700439297 /* LDCalendarViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0293D0B31B95A24700439297 /* LDCalendarViewTests.m */; };
 		0293D0C01B95AA2D00439297 /* LDCalendarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0293D0BF1B95AA2D00439297 /* LDCalendarView.m */; };
 		0293D0C11B95AA2D00439297 /* LDCalendarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0293D0BF1B95AA2D00439297 /* LDCalendarView.m */; };
-		0293D0C41B95AB7E00439297 /* NSDate+extend.m in Sources */ = {isa = PBXBuildFile; fileRef = 0293D0C31B95AB7E00439297 /* NSDate+extend.m */; };
-		0293D0C51B95AB7E00439297 /* NSDate+extend.m in Sources */ = {isa = PBXBuildFile; fileRef = 0293D0C31B95AB7E00439297 /* NSDate+extend.m */; };
+		02EFD3861BB18CC2002E0676 /* UIColor+Extend.m in Sources */ = {isa = PBXBuildFile; fileRef = 02EFD3851BB18CC2002E0676 /* UIColor+Extend.m */; settings = {ASSET_TAGS = (); }; };
+		02EFD3891BB18D4A002E0676 /* NSDate+Extend.m in Sources */ = {isa = PBXBuildFile; fileRef = 02EFD3881BB18D4A002E0676 /* NSDate+Extend.m */; settings = {ASSET_TAGS = (); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,8 +46,10 @@
 		0293D0B31B95A24700439297 /* LDCalendarViewTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LDCalendarViewTests.m; sourceTree = "<group>"; };
 		0293D0BE1B95AA2D00439297 /* LDCalendarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDCalendarView.h; sourceTree = "<group>"; };
 		0293D0BF1B95AA2D00439297 /* LDCalendarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDCalendarView.m; sourceTree = "<group>"; };
-		0293D0C21B95AB7E00439297 /* NSDate+extend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+extend.h"; sourceTree = "<group>"; };
-		0293D0C31B95AB7E00439297 /* NSDate+extend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+extend.m"; sourceTree = "<group>"; };
+		02EFD3841BB18CC2002E0676 /* UIColor+Extend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Extend.h"; sourceTree = "<group>"; };
+		02EFD3851BB18CC2002E0676 /* UIColor+Extend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Extend.m"; sourceTree = "<group>"; };
+		02EFD3871BB18D4A002E0676 /* NSDate+Extend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+Extend.h"; sourceTree = "<group>"; };
+		02EFD3881BB18D4A002E0676 /* NSDate+Extend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Extend.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,8 +135,10 @@
 			children = (
 				0293D0BE1B95AA2D00439297 /* LDCalendarView.h */,
 				0293D0BF1B95AA2D00439297 /* LDCalendarView.m */,
-				0293D0C21B95AB7E00439297 /* NSDate+extend.h */,
-				0293D0C31B95AB7E00439297 /* NSDate+extend.m */,
+				02EFD3871BB18D4A002E0676 /* NSDate+Extend.h */,
+				02EFD3881BB18D4A002E0676 /* NSDate+Extend.m */,
+				02EFD3841BB18CC2002E0676 /* UIColor+Extend.h */,
+				02EFD3851BB18CC2002E0676 /* UIColor+Extend.m */,
 			);
 			path = LDCalenderView;
 			sourceTree = "<group>";
@@ -239,8 +243,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0293D0C41B95AB7E00439297 /* NSDate+extend.m in Sources */,
+				02EFD3861BB18CC2002E0676 /* UIColor+Extend.m in Sources */,
 				0293D0C01B95AA2D00439297 /* LDCalendarView.m in Sources */,
+				02EFD3891BB18D4A002E0676 /* NSDate+Extend.m in Sources */,
 				0293D0A01B95A24700439297 /* LDCalenderViewController.m in Sources */,
 				0293D09D1B95A24700439297 /* AppDelegate.m in Sources */,
 				0293D09A1B95A24700439297 /* main.m in Sources */,
@@ -251,7 +256,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0293D0C51B95AB7E00439297 /* NSDate+extend.m in Sources */,
 				0293D0C11B95AA2D00439297 /* LDCalendarView.m in Sources */,
 				0293D0B41B95A24700439297 /* LDCalendarViewTests.m in Sources */,
 			);
@@ -440,6 +444,7 @@
 				0293D0B91B95A24700439297 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0293D0BA1B95A24700439297 /* Build configuration list for PBXNativeTarget "LDCalendarViewTests" */ = {
 			isa = XCConfigurationList;
@@ -448,6 +453,7 @@
 				0293D0BC1B95A24700439297 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
