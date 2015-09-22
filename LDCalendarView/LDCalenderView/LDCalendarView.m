@@ -12,7 +12,7 @@
 #define UNIT_WIDTH  35 * SCREEN_RAT
 
 //行 列 每小格宽度 格子总数
-static const NSInteger kRow = 1 + 4;//一,二,三... 1行 日期6行
+static const NSInteger kRow = 1 + 6;//一,二,三... 1行 日期6行
 static const NSInteger kCol = 7;
 static const NSInteger kTotalNum = (kRow - 1) * kCol;
 
