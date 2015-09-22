@@ -12,7 +12,7 @@
 #define UNIT_WIDTH  35 * SCREEN_RAT
 
 //行 列 每小格宽度 格子总数
-static const NSInteger kRow = 7;
+static const NSInteger kRow = 1 + 4;//一,二,三... 1行 日期6行
 static const NSInteger kCol = 7;
 static const NSInteger kTotalNum = (kRow - 1) * kCol;
 
@@ -60,7 +60,7 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
         [self addSubview:bgAlphaView];
         
         //内容区的背景
-        _contentBgView = [[UIView alloc] initWithFrame:CGRectMake((SCREEN_WIDTH-UNIT_WIDTH*kCol)/2.0, 100, UNIT_WIDTH*kCol, 42+UNIT_WIDTH*kCol+50)];
+        _contentBgView = [[UIView alloc] initWithFrame:CGRectMake((SCREEN_WIDTH-UNIT_WIDTH*kCol)/2.0, 100, UNIT_WIDTH*kCol, 42+UNIT_WIDTH*kRow+50)];
         _contentBgView.layer.cornerRadius = 2.0;
         _contentBgView.layer.masksToBounds = YES;
         _contentBgView.userInteractionEnabled = YES;
@@ -94,7 +94,7 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
         line.backgroundColor = [UIColor hexColorWithString:@"dddddd"];
         [_contentBgView addSubview:line];
         
-        _dateBgView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_titleLab.frame), CGRectGetWidth(_contentBgView.frame), UNIT_WIDTH*kCol)];
+        _dateBgView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_titleLab.frame), CGRectGetWidth(_contentBgView.frame), UNIT_WIDTH*kRow)];
         _dateBgView.userInteractionEnabled = YES;
         _dateBgView.backgroundColor = [UIColor hexColorWithString:@"ededed"];
         [_contentBgView addSubview:_dateBgView];
