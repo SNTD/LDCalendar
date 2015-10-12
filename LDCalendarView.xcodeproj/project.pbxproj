@@ -31,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		026EC44C1BCB8D33005B4B45 /* LDCalendarConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDCalendarConst.h; sourceTree = "<group>"; };
 		0293D0941B95A24700439297 /* LDCalendarView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LDCalendarView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0293D0981B95A24700439297 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0293D0991B95A24700439297 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -133,6 +134,7 @@
 		0293D0BD1B95AA2D00439297 /* LDCalenderView */ = {
 			isa = PBXGroup;
 			children = (
+				026EC44C1BCB8D33005B4B45 /* LDCalendarConst.h */,
 				0293D0BE1B95AA2D00439297 /* LDCalendarView.h */,
 				0293D0BF1B95AA2D00439297 /* LDCalendarView.m */,
 				02EFD3871BB18D4A002E0676 /* NSDate+Extend.h */,
