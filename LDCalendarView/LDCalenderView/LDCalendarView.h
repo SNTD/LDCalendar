@@ -8,11 +8,11 @@
 #import <UIKit/UIKit.h>
 #import "LDCalendarConst.h"
 
-typedef void(^ParttimeComplete)(NSArray *result);
+typedef void(^DaysSelectedBlock)(NSArray *result);
 
 @interface LDCalendarView : UIView
-@property (nonatomic, strong) NSArray          *defaultDates;
-@property (nonatomic, copy  ) ParttimeComplete complete;
+@property (nonatomic, strong) NSArray          *defaultDays;
+@property (nonatomic, copy  ) DaysSelectedBlock complete;
 
 - (id)initWithFrame:(CGRect)frame;
 - (void)show;

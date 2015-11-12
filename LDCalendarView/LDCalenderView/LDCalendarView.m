@@ -18,17 +18,19 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
 
 @interface LDCalendarView()
 //UI
-@property (nonatomic, strong) NSMutableArray *currentMonthDateArray;
 @property (nonatomic, strong) UIView         *dateBgView;//日期的背景
 @property (nonatomic, strong) UILabel        *titleLab;//标题
 @property (nonatomic, strong) UIView         *contentBgView;
-@property (nonatomic, strong) UIButton       *done;//确定按钮
+@property (nonatomic, strong) UIButton       *doneBtn;//确定按钮
 
 //Data
 @property (nonatomic, assign) int32_t        month;
 @property (nonatomic, assign) int32_t        year;
 @property (nonatomic, strong) NSDate         *today;
+
+@property (nonatomic, strong) NSMutableArray *currentMonthDaysArray;
 @property (nonatomic, strong) NSMutableArray *selectArray;
+
 @property (nonatomic, assign) CGRect         touchRect;//可操作区域
 @end
 
@@ -53,18 +55,26 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
     self = [super initWithFrame:frame];
     if (self)
     {
-        UIView *bgAlphaView         = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-        bgAlphaView.alpha           = 0.3;
-        bgAlphaView.backgroundColor = [UIColor blackColor];
-        [self addSubview:bgAlphaView];
-        
-        //内容区的背景
-        _contentBgView                        = [[UIView alloc] initWithFrame:CGRectMake((SCREEN_WIDTH-UNIT_WIDTH*kCol)/2.0, 100, UNIT_WIDTH*kCol, 42+UNIT_WIDTH*kRow+50)];
-        _contentBgView.layer.cornerRadius     = 2.0;
-        _contentBgView.layer.masksToBounds    = YES;
-        _contentBgView.userInteractionEnabled = YES;
-        _contentBgView.backgroundColor        = [UIColor whiteColor];
-        [self addSubview:_contentBgView];
+        self.dateBgView = ({
+            UIView *view         = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+            view.alpha           = 0.3;
+            view.backgroundColor = [UIColor blackColor];
+            [self addSubview:view];
+            
+            view;
+        });
+
+        self.contentBgView = ({
+            //内容区的背景
+            UIView        *view                  = [[UIView alloc] initWithFrame:CGRectMake((SCREEN_WIDTH-UNIT_WIDTH*kCol)/2.0, 100, UNIT_WIDTH*kCol, 42+UNIT_WIDTH*kRow+50)];
+            view.layer.cornerRadius     = 2.0;
+            view.layer.masksToBounds    = YES;
+            view.userInteractionEnabled = YES;
+            view.backgroundColor        = [UIColor whiteColor];
+            [self addSubview:view];
+            
+            view;
+        });
         
         UIImageView *leftImage = [UIImageView new];
         leftImage.image        = [UIImage imageNamed:@"com_arrows_right"];
@@ -77,13 +87,17 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
         [_contentBgView addSubview:rightImage];
         rightImage.frame        = CGRectMake(CGRectGetWidth(_contentBgView.frame)*2/3.0 + 8, (42-13)/2.0, 8, 13);
     
-        _titleLab                        = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_contentBgView.frame), 42)];
-        _titleLab.backgroundColor        = [UIColor clearColor];
-        _titleLab.textColor              = [UIColor blackColor];
-        _titleLab.font                   = [UIFont systemFontOfSize:14];
-        _titleLab.textAlignment          = NSTextAlignmentCenter;
-        _titleLab.userInteractionEnabled = YES;
-        [_contentBgView addSubview:_titleLab];
+        self.titleLab = ({
+            UILabel *lab                        = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_contentBgView.frame), 42)];
+            lab.backgroundColor        = [UIColor clearColor];
+            lab.textColor              = [UIColor blackColor];
+            lab.font                   = [UIFont systemFontOfSize:14];
+            lab.textAlignment          = NSTextAlignmentCenter;
+            lab.userInteractionEnabled = YES;
+            [_contentBgView addSubview:lab];
+            
+            lab;
+        });
         
         UITapGestureRecognizer *titleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchMonthTap:)];
         [_titleLab addGestureRecognizer:titleTap];
@@ -92,25 +106,34 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
         line.backgroundColor = [UIColor hexColorWithString:@"dddddd"];
         [_contentBgView addSubview:line];
         
-        _dateBgView                        = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_titleLab.frame), CGRectGetWidth(_contentBgView.frame), UNIT_WIDTH*kRow)];
-        _dateBgView.userInteractionEnabled = YES;
-        _dateBgView.backgroundColor        = [UIColor hexColorWithString:@"ededed"];
-        [_contentBgView addSubview:_dateBgView];
-        
+        self.dateBgView = ({
+            UIView *view                = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_titleLab.frame), CGRectGetWidth(_contentBgView.frame), UNIT_WIDTH*kRow)];
+            view.userInteractionEnabled = YES;
+            view.backgroundColor        = [UIColor hexColorWithString:@"ededed"];
+            [_contentBgView addSubview:view];
+            
+            view;
+        });
+
         UIView *_bottomLine         = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_dateBgView.frame), CGRectGetWidth(_contentBgView.frame), 0.5)];
         _bottomLine.backgroundColor = [UIColor hexColorWithString:@"dddddd"];
         [_contentBgView addSubview:_bottomLine];
         
-        _done = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_done setFrame:CGRectMake((CGRectGetWidth(_contentBgView.frame) - 150) / 2.0, CGRectGetHeight(_contentBgView.frame) - 40, 150, 30)];
-        [_done setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [_done.titleLabel setFont:[UIFont systemFontOfSize:14]];
-        [_done setBackgroundImage:[[UIImage imageNamed:@"b_com_bt_blue_normal"] stretchableImageWithLeftCapWidth:15 topCapHeight:10] forState:UIControlStateNormal];
-        [_done setBackgroundImage:[[UIImage imageNamed:@"b_com_bt_blue_normal"] stretchableImageWithLeftCapWidth:15 topCapHeight:10] forState:UIControlStateSelected];
-        [_done setBackgroundImage:[[UIImage imageNamed:@"com_bt_gray_normal"] stretchableImageWithLeftCapWidth:15 topCapHeight:10] forState:UIControlStateDisabled];
-        [_done addTarget:self action:@selector(doneBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [_done setTitle:@"确定" forState:UIControlStateNormal];
-        [_contentBgView addSubview:_done];
+        self.doneBtn = ({
+            UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+            [btn setFrame:CGRectMake((CGRectGetWidth(_contentBgView.frame) - 150) / 2.0, CGRectGetHeight(_contentBgView.frame) - 40, 150, 30)];
+            [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [btn.titleLabel setFont:[UIFont systemFontOfSize:14]];
+            [btn setBackgroundImage:[[UIImage imageNamed:@"b_com_bt_blue_normal"] stretchableImageWithLeftCapWidth:15 topCapHeight:10] forState:UIControlStateNormal];
+            [btn setBackgroundImage:[[UIImage imageNamed:@"b_com_bt_blue_normal"] stretchableImageWithLeftCapWidth:15 topCapHeight:10] forState:UIControlStateSelected];
+            [btn setBackgroundImage:[[UIImage imageNamed:@"com_bt_gray_normal"] stretchableImageWithLeftCapWidth:15 topCapHeight:10] forState:UIControlStateDisabled];
+            [btn addTarget:self action:@selector(doneBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+            [btn setTitle:@"确定" forState:UIControlStateNormal];
+            [_contentBgView addSubview:btn];
+            
+            btn;
+        });
+
         
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap:)];
         [_dateBgView addGestureRecognizer:tap];
@@ -130,9 +153,9 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
     self.year           = (int32_t)currentDate.year;
     [self refreshDateTitle];
 
-    _currentMonthDateArray = [NSMutableArray array];
+    _currentMonthDaysArray = [NSMutableArray array];
     for (int i = 0; i < kTotalNum; i++) {
-        [_currentMonthDateArray addObject:@(0)];
+        [_currentMonthDaysArray addObject:@(0)];
     }
 
     [self showDateView];
@@ -247,7 +270,7 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
         [btn.titleLabel setFont:[UIFont systemFontOfSize:10]];
         
         NSDate * date = [firstDay dateByAddingTimeInterval:(i - startDayIndex) *24*60*60];
-        _currentMonthDateArray[i] = @(([date timeIntervalSince1970]) * 1000);
+        _currentMonthDaysArray[i] = @(([date timeIntervalSince1970]) * 1000);
         NSString *title = INTTOSTR(date.day);
         if ([date isToday])
         {
@@ -285,11 +308,11 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
     [self refreshDateView];
 }
 
-- (void)setDefaultDates:(NSArray *)defaultDates {
-    _defaultDates = defaultDates;
+- (void)setDefaultDays:(NSArray *)defaultDays {
+    _defaultDays = defaultDays;
     
-    if (defaultDates) {
-        _selectArray = [defaultDates mutableCopy];
+    if (defaultDays) {
+        _selectArray = [defaultDays mutableCopy];
     }else {
         _selectArray = @[].mutableCopy;
     }
@@ -299,9 +322,9 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
     for(int i = 0; i < kTotalNum; i++)
     {
         UIButton *btn = (UIButton *)[_dateBgView viewWithTag:100 + i];
-        NSNumber *interval = [_currentMonthDateArray objectAtIndex:i];
+        NSNumber *interval = [_currentMonthDaysArray objectAtIndex:i];
 
-        if (i < [_currentMonthDateArray count] && btn)
+        if (i < [_currentMonthDaysArray count] && btn)
         {
             if ([_selectArray containsObject:interval]) {
                 [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -335,8 +358,8 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
 - (void)clickForIndex:(NSInteger)index
 {
     UIButton *btn = (UIButton *)[_dateBgView viewWithTag:100 + index];
-    if (index < [_currentMonthDateArray count]) {
-        NSNumber *interval = [_currentMonthDateArray objectAtIndex:index];
+    if (index < [_currentMonthDaysArray count]) {
+        NSNumber *interval = [_currentMonthDaysArray objectAtIndex:index];
         NSDate *date = [NSDate dateWithTimeIntervalSince1970:interval.doubleValue/1000.0];
         if ([self.today  compare:date] < 0) {
             //时间比今天大,同时是当前月

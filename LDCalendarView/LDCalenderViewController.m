@@ -79,6 +79,6 @@
         };
     }
     [self.calendarView show];
-    self.calendarView.defaultDates = _seletedDays;
+    self.calendarView.defaultDays = _seletedDays;
 }
 @end
