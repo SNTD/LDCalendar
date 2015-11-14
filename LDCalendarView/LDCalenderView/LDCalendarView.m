@@ -66,7 +66,7 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
 
         self.contentBgView = ({
             //内容区的背景
-            UIView        *view                  = [[UIView alloc] initWithFrame:CGRectMake((SCREEN_WIDTH-UNIT_WIDTH*kCol)/2.0, 100, UNIT_WIDTH*kCol, 42+UNIT_WIDTH*kRow+50)];
+            UIView        *view         = [[UIView alloc] initWithFrame:CGRectMake((SCREEN_WIDTH-UNIT_WIDTH*kCol)/2.0, 100, UNIT_WIDTH*kCol, 42+UNIT_WIDTH*kRow+50)];
             view.layer.cornerRadius     = 2.0;
             view.layer.masksToBounds    = YES;
             view.userInteractionEnabled = YES;
@@ -88,7 +88,7 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
         rightImage.frame        = CGRectMake(CGRectGetWidth(_contentBgView.frame)*2/3.0 + 8, (42-13)/2.0, 8, 13);
     
         self.titleLab = ({
-            UILabel *lab                        = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_contentBgView.frame), 42)];
+            UILabel *lab               = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_contentBgView.frame), 42)];
             lab.backgroundColor        = [UIColor clearColor];
             lab.textColor              = [UIColor blackColor];
             lab.font                   = [UIFont systemFontOfSize:14];

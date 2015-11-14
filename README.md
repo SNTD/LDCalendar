@@ -6,6 +6,29 @@
 
 3.本日历是基于手势点击切换按钮状态的，用UIButton 的Normal Disable Selected 三种状态代码还可以更简单一点，当初用手势主要是为了以后可以处理3种以上的状态。
 
-# 日历效果演示
+## 日历效果演示
 
 ![](https://github.com/sntd/LDCalendarView/raw/master/Picture/LDCalendarView.gif)
+
+
+
+## 功能说明：
+
+详情可查看Demo中代码
+
+``` 
+if (!_calendarView) {
+    _calendarView = [[LDCalendarView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH,SCREEN_HEIGHT)];
+    [self.view addSubview:_calendarView];
+
+    __weak typeof(self) weakSelf = self;
+    _calendarView.complete = ^(NSArray *result) {
+        if (result) {
+            weakSelf.seletedDays = result.mutableCopy;
+            [tableView reloadData];
+        }
+    };
+}
+self.calendarView.defaultDays = _seletedDays;
+[self.calendarView show];
+```

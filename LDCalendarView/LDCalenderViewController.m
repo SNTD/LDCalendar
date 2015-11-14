@@ -31,7 +31,7 @@
         NSString *partStr = [NSDate stringWithTimestamp:interval.doubleValue/1000.0 format:@"MM.dd"];
         [str appendFormat:@"%@ ",partStr];
     }
-    return [str copy];
+    return str.copy;
 }
 
 - (void)viewDidLoad {
@@ -73,12 +73,12 @@
         __weak typeof(self) weakSelf = self;
         _calendarView.complete = ^(NSArray *result) {
             if (result) {
-                weakSelf.seletedDays = [result mutableCopy];
+                weakSelf.seletedDays = result.mutableCopy;
                 [tableView reloadData];
             }
         };
     }
-    [self.calendarView show];
     self.calendarView.defaultDays = _seletedDays;
+    [self.calendarView show];
 }
 @end
