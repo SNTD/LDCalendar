@@ -28,7 +28,7 @@
         return [obj1 compare:obj2];
     }];
     for (NSNumber *interval in self.seletedDays) {
-        NSString *partStr = [NSDate stringWithTimestamp:interval.doubleValue/1000.0 format:@"MM.dd"];
+        NSString *partStr = [NSDate stringWithTimestamp:interval.doubleValue format:@"MM.dd"];
         [str appendFormat:@"%@ ",partStr];
     }
     return str.copy;

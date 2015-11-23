@@ -12,25 +12,21 @@
 #define UNIT_WIDTH  35 * SCREEN_RAT
 
 //行 列 每小格宽度 格子总数
-static const NSInteger kRow      = 1 + 6;//一,二,三... 1行 日期6行
-static const NSInteger kCol      = 7;
-static const NSInteger kTotalNum = (kRow - 1) * kCol;
+static const NSInteger kRow         = 1 + 6;//一,二,三... 1行 日期6行
+static const NSInteger kCol         = 7;
+static const NSInteger kTotalNum    = (kRow - 1) * kCol;
+static const NSInteger kBtnStartTag = 100;
 
 @interface LDCalendarView()
 //UI
-@property (nonatomic, strong) UIView         *dateBgView;//日期的背景
+@property (nonatomic, strong) UIView         *contentBgView,*dateBgView;
 @property (nonatomic, strong) UILabel        *titleLab;//标题
-@property (nonatomic, strong) UIView         *contentBgView;
 @property (nonatomic, strong) UIButton       *doneBtn;//确定按钮
 
 //Data
-@property (nonatomic, assign) int32_t        month;
-@property (nonatomic, assign) int32_t        year;
-@property (nonatomic, strong) NSDate         *today;
-
-@property (nonatomic, strong) NSMutableArray *currentMonthDaysArray;
-@property (nonatomic, strong) NSMutableArray *selectArray;
-
+@property (nonatomic, assign) int32_t        year,month;
+@property (nonatomic, strong) NSDate         *today,*firstDay; //今天 当月第一天
+@property (nonatomic, strong) NSMutableArray *currentMonthDaysArray,*selectArray;
 @property (nonatomic, assign) CGRect         touchRect;//可操作区域
 @end
 
@@ -38,16 +34,20 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
 - (NSDate *)today {
     if (!_today) {
         NSDate *currentDate = [NSDate date];
-        NSInteger tYear     = currentDate.year;
-        NSInteger tMonth    = currentDate.month;
-        NSInteger tDay      = currentDate.day;
-        
+
         //字符串转换为日期,今天0点的时间
         NSDateFormatter* dateFormat = [[NSDateFormatter alloc] init];
         [dateFormat setDateFormat:@"yyyy-MM-dd"];
-        _today = [dateFormat dateFromString:[NSString stringWithFormat:@"%@-%@-%@",@(tYear),@(tMonth),@(tDay)]];
+        _today = [dateFormat dateFromString:[NSString stringWithFormat:@"%@-%@-%@",@(currentDate.year),@(currentDate.month),@(currentDate.day)]];
     }
     return _today;
+}
+
+- (NSDate *)firstDay {
+    NSDateFormatter* dateFormat = [[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"yyyy-MM-dd"];
+    NSDate *firstDay =[dateFormat dateFromString:[NSString stringWithFormat:@"%@-%@-%@",@(self.year),@(self.month),@(1)]];
+    return firstDay;
 }
 
 - (id)initWithFrame:(CGRect)frame
@@ -202,17 +202,8 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
     [self showDateView];
 }
 
-- (void)showDateView {
-    //移除之前子视图
-    [_dateBgView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        [obj removeFromSuperview];
-    }];
-    
-    CGFloat offX    = 0.0;
-    CGFloat offY    = 0.0;
-    CGFloat w       = (CGRectGetWidth(_dateBgView.frame)) / kCol;
-    CGFloat h       = (CGRectGetHeight(_dateBgView.frame)) / kRow;
-    CGRect baseRect = CGRectMake(offX,offY, w, h);
+- (void)drawTitleView {
+    CGRect baseRect = CGRectMake(0.0,0.0, UNIT_WIDTH, UNIT_WIDTH);
     NSArray *tmparr = @[@"一",@"二",@"三",@"四",@"五",@"六",@"日"];
     for(int i = 0 ;i < 7; i++)
     {
@@ -223,15 +214,12 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
         lab.backgroundColor = [UIColor clearColor];
         lab.text            = [tmparr objectAtIndex:i];
         [_dateBgView addSubview:lab];
-
+        
         baseRect.origin.x   += baseRect.size.width;
     }
+}
 
-    //字符串转换为日期
-    NSDateFormatter* dateFormat = [[NSDateFormatter alloc] init];
-    [dateFormat setDateFormat:@"yyyy-MM-dd"];
-    NSDate *firstDay =[dateFormat dateFromString:[NSString stringWithFormat:@"%@-%@-%@",@(self.year),@(self.month),@(1)]];
-    
+- (CGFloat)calculateStartIndex:(NSDate *)firstDay {
     CGFloat startDayIndex = [NSDate acquireWeekDayFromDate:firstDay];
     //第一天是今天，特殊处理
     if (startDayIndex == 1) {
@@ -241,66 +229,80 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
         //周一到周六（对应2-7）
         startDayIndex -= 2;
     }
+    return startDayIndex;
+}
+
+- (void)createBtn:(NSInteger)i frame:(CGRect)baseRect {
+    UIButton *btn              = [UIButton buttonWithType:UIButtonTypeCustom];
+    btn.tag                    = kBtnStartTag + i;
+    [btn setFrame:baseRect];
+    btn.userInteractionEnabled = NO;
+    btn.backgroundColor        = [UIColor clearColor];
+    [btn.titleLabel setFont:[UIFont systemFontOfSize:10]];
     
-    baseRect.origin.x = w * startDayIndex;
-    baseRect.origin.y += (baseRect.size.height);
-    NSInteger baseTag = 100;
-    for(int i = startDayIndex; i < kTotalNum;i++)
-    {
-        if (i % kCol == 0 && i!= 0)
-        {
+    CGFloat startDayIndex = [self calculateStartIndex:self.firstDay];
+    NSDate * date = [self.firstDay dateByAddingTimeInterval: (i - startDayIndex)*24*60*60];
+    _currentMonthDaysArray[i] = @([date timeIntervalSince1970]);
+    NSString *title = INTTOSTR(date.day);
+    if ([date isToday]) {
+        title = @"今天";
+        btn.layer.borderColor = [UIColor hexColorWithString:@"f49e79"].CGColor;
+        btn.layer.borderWidth = 0.5;
+    }
+    else if(date.day == 1) {
+        //1号在下面标一下月份
+        UILabel *monthLab        = [[UILabel alloc] initWithFrame:CGRectMake(baseRect.origin.x, baseRect.origin.y + baseRect.size.height - 7, baseRect.size.width, 7)];
+        monthLab.backgroundColor = [UIColor clearColor];
+        monthLab.textAlignment   = NSTextAlignmentCenter;
+        monthLab.font            = [UIFont systemFontOfSize:7];
+        monthLab.textColor       = [UIColor hexColorWithString:@"c0c0c0"];
+        monthLab.text            = [NSString stringWithFormat:@"%@月",@(date.month)];
+        [_dateBgView addSubview:monthLab];
+    }
+    
+    [btn setTitle:title forState:UIControlStateNormal];
+    if ([self.today compare:date] < 0) {
+        //时间比今天大,同时是当前月
+        [btn setTitleColor:[UIColor hexColorWithString:@"2b2b2b"] forState:UIControlStateNormal];
+    }else {
+        [btn setTitleColor:[UIColor hexColorWithString:@"bfbfbf"] forState:UIControlStateNormal];
+    }
+    [btn setBackgroundColor:[UIColor clearColor]];
+    
+    [_dateBgView addSubview:btn];
+}
+
+- (void)showDateView {
+    //移除之前子视图
+    [_dateBgView.subviews enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [obj removeFromSuperview];
+    }];
+    
+    //一，二，三，四...
+    [self drawTitleView];
+
+    CGFloat startDayIndex       = [self calculateStartIndex:self.firstDay];
+    CGRect baseRect             = CGRectMake(UNIT_WIDTH * startDayIndex,UNIT_WIDTH, UNIT_WIDTH, UNIT_WIDTH);
+    //设置触摸区域
+    self.touchRect = ({
+        CGRect rect = CGRectZero;
+        rect.origin      = baseRect.origin;
+        rect.origin.x    = 0;
+        rect.size.width  = kCol * UNIT_WIDTH;
+        rect.size.height = kRow * UNIT_WIDTH;
+        
+        rect;
+    });
+    
+    for(int i = startDayIndex; i < kTotalNum;i++) {
+        //需要换行且不在第一行
+        if (i % kCol == 0 && i != 0) {
             baseRect.origin.y += (baseRect.size.height);
-            baseRect.origin.x = offX;
+            baseRect.origin.x = 0.0;
         }
         
-        //设置触摸区域
-        if (i == startDayIndex)
-        {
-            _touchRect.origin      = baseRect.origin;
-            _touchRect.origin.x    = 0;
-            _touchRect.size.width  = kCol * w;
-            _touchRect.size.height = kRow * h;
-        }
-        
-        UIButton *btn              = [UIButton buttonWithType:UIButtonTypeCustom];
-        btn.tag                    = baseTag + i;
-        [btn setFrame:baseRect];
-        btn.userInteractionEnabled = NO;
-        btn.backgroundColor        = [UIColor clearColor];
-        [btn.titleLabel setFont:[UIFont systemFontOfSize:10]];
-        
-        NSDate * date = [firstDay dateByAddingTimeInterval:(i - startDayIndex) *24*60*60];
-        _currentMonthDaysArray[i] = @(([date timeIntervalSince1970]) * 1000);
-        NSString *title = INTTOSTR(date.day);
-        if ([date isToday])
-        {
-            title = @"今天";
-            btn.layer.borderColor = [UIColor hexColorWithString:@"f49e79"].CGColor;
-            btn.layer.borderWidth = 0.5;
-        }
-        else if(date.day == 1)
-        {
-            //1号在下面标一下月份
-            UILabel *monthLab        = [[UILabel alloc] initWithFrame:CGRectMake(baseRect.origin.x, baseRect.origin.y + baseRect.size.height - 7, baseRect.size.width, 7)];
-            monthLab.backgroundColor = [UIColor clearColor];
-            monthLab.textAlignment   = NSTextAlignmentCenter;
-            monthLab.font            = [UIFont systemFontOfSize:7];
-            monthLab.textColor       = [UIColor hexColorWithString:@"c0c0c0"];
-            monthLab.text            = [NSString stringWithFormat:@"%@月",@(date.month)];
-            [_dateBgView addSubview:monthLab];
-        }
-        
-        [btn setTitle:title forState:UIControlStateNormal];
-        if ([self.today compare:date] < 0) {
-            //时间比今天大,同时是当前月
-            [btn setTitleColor:[UIColor hexColorWithString:@"2b2b2b"] forState:UIControlStateNormal];
-        }else {
-            [btn setTitleColor:[UIColor hexColorWithString:@"bfbfbf"] forState:UIControlStateNormal];
-        }
-        [btn setBackgroundColor:[UIColor clearColor]];
-        [_dateBgView addSubview:btn];
-        [_dateBgView sendSubviewToBack:btn];
-        
+        [self createBtn:i frame:baseRect];
+
         baseRect.origin.x += (baseRect.size.width);
     }
     
@@ -319,27 +321,17 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
 }
 
 - (void)refreshDateView {
-    for(int i = 0; i < kTotalNum; i++)
-    {
-        UIButton *btn = (UIButton *)[_dateBgView viewWithTag:100 + i];
+    for(int i = 0; i < kTotalNum; i++) {
+        UIButton *btn = (UIButton *)[_dateBgView viewWithTag:kBtnStartTag + i];
         NSNumber *interval = [_currentMonthDaysArray objectAtIndex:i];
 
-        if (i < [_currentMonthDaysArray count] && btn)
-        {
+        if (i < [_currentMonthDaysArray count] && btn) {
             if ([_selectArray containsObject:interval]) {
                 [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
                 [btn setBackgroundColor:[UIColor hexColorWithString:@"77d2c5"]];
             }
         }
     }
-}
-
-- (void)show {
-    self.hidden = NO;
-}
-
-- (void)hide {
-    self.hidden = YES;
 }
 
 -(void)tap:(UITapGestureRecognizer *)gesture{
@@ -357,10 +349,10 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
 
 - (void)clickForIndex:(NSInteger)index
 {
-    UIButton *btn = (UIButton *)[_dateBgView viewWithTag:100 + index];
+    UIButton *btn = (UIButton *)[_dateBgView viewWithTag:kBtnStartTag + index];
     if (index < [_currentMonthDaysArray count]) {
         NSNumber *interval = [_currentMonthDaysArray objectAtIndex:index];
-        NSDate *date = [NSDate dateWithTimeIntervalSince1970:interval.doubleValue/1000.0];
+        NSDate *date = [NSDate dateWithTimeIntervalSince1970:interval.doubleValue];
         if ([self.today  compare:date] < 0) {
             //时间比今天大,同时是当前月
         }else {
@@ -387,11 +379,18 @@ static const NSInteger kTotalNum = (kRow - 1) * kCol;
     }
 }
 
-- (void)doneBtnClick:(id)sender
-{
+- (void)doneBtnClick:(id)sender {
     if (_complete) {
         _complete([_selectArray mutableCopy]);
     }
     [self hide];
+}
+
+- (void)show {
+    self.hidden = NO;
+}
+
+- (void)hide {
+    self.hidden = YES;
 }
 @end
