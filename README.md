@@ -32,3 +32,5 @@ if (!_calendarView) {
 self.calendarView.defaultDays = _seletedDays;
 [self.calendarView show];
 ```
+
+Support : iOS6 +
