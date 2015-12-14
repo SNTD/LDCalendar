@@ -50,9 +50,7 @@
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CalendarCell"];
     UILabel *showLab= (UILabel *)[cell.contentView viewWithTag:100.0];
-    if (self.seletedDays.count) {
-        showLab.text = self.showStr;
-    }
+    showLab.text = self.showStr;
 
     return cell;
 }
