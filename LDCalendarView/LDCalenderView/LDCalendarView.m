@@ -22,7 +22,6 @@ static const NSInteger kBtnStartTag = 100;
 @property (nonatomic, strong) UIView         *contentBgView,*dateBgView;
 @property (nonatomic, strong) UILabel        *titleLab;//标题
 @property (nonatomic, strong) UIButton       *doneBtn;//确定按钮
-
 //Data
 @property (nonatomic, assign) int32_t        year,month;
 @property (nonatomic, strong) NSDate         *today,*firstDay; //今天 当月第一天
@@ -73,20 +72,24 @@ static const NSInteger kBtnStartTag = 100;
             view.backgroundColor        = [UIColor whiteColor];
             [self addSubview:view];
             
+            ({
+                UIImageView *leftImage = [UIImageView new];
+                leftImage.image        = [UIImage imageNamed:@"com_arrows_right"];
+                leftImage.image        = [UIImage imageWithCGImage:leftImage.image.CGImage scale:1 orientation:UIImageOrientationDown];
+                [view addSubview:leftImage];
+                leftImage.frame        = CGRectMake(CGRectGetWidth(view.frame)/3.0 - 8 - 10, (42-13)/2.0, 8, 13);
+            });
+            
+            ({
+                UIImageView *rightImage = [UIImageView new];
+                rightImage.image        = [UIImage imageNamed:@"com_arrows_right"];
+                [view addSubview:rightImage];
+                rightImage.frame        = CGRectMake(CGRectGetWidth(view.frame)*2/3.0 + 8, (42-13)/2.0, 8, 13);
+            });
+            
             view;
         });
-        
-        UIImageView *leftImage = [UIImageView new];
-        leftImage.image        = [UIImage imageNamed:@"com_arrows_right"];
-        leftImage.transform    = CGAffineTransformMakeRotation(M_PI);
-        [_contentBgView addSubview:leftImage];
-        leftImage.frame        = CGRectMake(CGRectGetWidth(_contentBgView.frame)/3.0 - 8 - 10, (42-13)/2.0, 8, 13);
-        
-        UIImageView *rightImage = [UIImageView new];
-        rightImage.image        = [UIImage imageNamed:@"com_arrows_right"];
-        [_contentBgView addSubview:rightImage];
-        rightImage.frame        = CGRectMake(CGRectGetWidth(_contentBgView.frame)*2/3.0 + 8, (42-13)/2.0, 8, 13);
-    
+
         self.titleLab = ({
             UILabel *lab               = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(_contentBgView.frame), 42)];
             lab.backgroundColor        = [UIColor clearColor];
@@ -96,15 +99,17 @@ static const NSInteger kBtnStartTag = 100;
             lab.userInteractionEnabled = YES;
             [_contentBgView addSubview:lab];
             
+            ({
+                UITapGestureRecognizer *titleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchMonthTap:)];
+                [lab addGestureRecognizer:titleTap];
+                
+                UIView *line         = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(lab.frame) - 0.5, CGRectGetWidth(_contentBgView.frame), 0.5)];
+                line.backgroundColor = [UIColor hexColorWithString:@"dddddd"];
+                [_contentBgView addSubview:line];
+            });
+            
             lab;
         });
-        
-        UITapGestureRecognizer *titleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(switchMonthTap:)];
-        [_titleLab addGestureRecognizer:titleTap];
-        
-        UIView *line         = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_titleLab.frame) - 0.5, CGRectGetWidth(_contentBgView.frame), 0.5)];
-        line.backgroundColor = [UIColor hexColorWithString:@"dddddd"];
-        [_contentBgView addSubview:line];
         
         self.dateBgView = ({
             UIView *view                = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_titleLab.frame), CGRectGetWidth(_contentBgView.frame), UNIT_WIDTH*kRow)];
@@ -112,13 +117,19 @@ static const NSInteger kBtnStartTag = 100;
             view.backgroundColor        = [UIColor hexColorWithString:@"ededed"];
             [_contentBgView addSubview:view];
             
+            ({
+                UIView *bottomLine         = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(view.frame), CGRectGetWidth(_contentBgView.frame), 0.5)];
+                bottomLine.backgroundColor = [UIColor hexColorWithString:@"dddddd"];
+                [_contentBgView addSubview:bottomLine];
+            });
+            
+            ({
+                UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap:)];
+                [view addGestureRecognizer:tap];
+            });
             view;
         });
 
-        UIView *_bottomLine         = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_dateBgView.frame), CGRectGetWidth(_contentBgView.frame), 0.5)];
-        _bottomLine.backgroundColor = [UIColor hexColorWithString:@"dddddd"];
-        [_contentBgView addSubview:_bottomLine];
-        
         self.doneBtn = ({
             UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
             [btn setFrame:CGRectMake((CGRectGetWidth(_contentBgView.frame) - 150) / 2.0, CGRectGetHeight(_contentBgView.frame) - 40, 150, 30)];
@@ -133,12 +144,7 @@ static const NSInteger kBtnStartTag = 100;
             
             btn;
         });
-
         
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap:)];
-        [_dateBgView addGestureRecognizer:tap];
-        
-        //初始化数据
         [self initData];
     }
     return self;
@@ -165,16 +171,13 @@ static const NSInteger kBtnStartTag = 100;
    CGPoint loc =  [tap locationInView:_titleLab];
     CGFloat titleLabWidth = CGRectGetWidth(_titleLab.frame);
     if (loc.x <= titleLabWidth/3.0) {
-        //左
         [self leftSwitch];
     }else if(loc.x >= titleLabWidth/3.0*2.0){
-        //右
         [self rightSwitch];
     }
 }
 
 - (void)leftSwitch{
-    //左
     if (self.month > 1) {
         self.month -= 1;
     }else {
@@ -358,6 +361,7 @@ static const NSInteger kBtnStartTag = 100;
         }else {
             return;
         }
+        
         if ([_selectArray containsObject:interval]) {
             //已选中,取消
             [_selectArray removeObject:interval];
@@ -367,7 +371,6 @@ static const NSInteger kBtnStartTag = 100;
         else {
             //未选中,想选择
             [_selectArray addObject:interval];
-
             [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
             [btn setBackgroundColor:[UIColor hexColorWithString:@"77d2c5"]];
             

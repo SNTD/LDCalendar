@@ -65,7 +65,12 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    //日期选择
+    
+    self.calendarView.defaultDays = _seletedDays;
+    [self.calendarView show];
+}
+
+- (LDCalendarView *)calendarView {
     if (!_calendarView) {
         _calendarView = [[LDCalendarView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH,SCREEN_HEIGHT)];
         [self.view addSubview:_calendarView];
@@ -74,11 +79,10 @@
         _calendarView.complete = ^(NSArray *result) {
             if (result) {
                 weakSelf.seletedDays = result.mutableCopy;
-                [tableView reloadData];
+                [weakSelf.tableView reloadData];
             }
         };
     }
-    self.calendarView.defaultDays = _seletedDays;
-    [self.calendarView show];
+    return _calendarView;
 }
 @end
